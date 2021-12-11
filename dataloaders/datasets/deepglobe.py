@@ -93,7 +93,6 @@ class Segmentation(Dataset):
     def _make_img_gt_point_pair(self, index):
         _img = Image.open(self.images[index]).convert('RGB')
         _target = Image.open(self.categories[index]).convert('L')
-        a = np.array(_target).astype(np.float32)
         _connect0 = Image.open(self.connect_label[index] + '_mask' + '_0.png').convert('RGB')
         _connect1 = Image.open(self.connect_label[index] + '_mask' + '_1.png').convert('RGB')
         _connect2 = Image.open(self.connect_label[index] + '_mask' + '_2.png').convert('RGB')

@@ -8,7 +8,7 @@ create_crops.py: script to crops for training and validation.
 It will create following directory structure:
     base_dir
         |   train_crops.txt   # created by script
-        |   test_crops.txt     # created by script
+        |   val_crops.txt     # created by script
         |
         └───crops       # created by script
         │   └───gt
