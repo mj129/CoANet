@@ -13,7 +13,7 @@ Extracting roads from satellite imagery is a promising approach to update the dy
 ### Citations
 
 If you are using the code/model provided here in a publication, please consider citing:
-   
+
     @article{mei2021coanet,
     title={CoANet: Connectivity Attention Network for Road Extraction From Satellite Imagery},
     author={Mei, Jie and Li, Rou-Jing and Gao, Wang and Cheng, Ming-Ming},
@@ -57,18 +57,19 @@ spacenet
 ```
 deepglobe
 │
-└───train
-│   └───gt
-│   └───images
+└───gt
+│   └───388_mask.jpg
+└───images
+│   └───388_sat.jpg
 ```
 #### Create Crops and connectivity cubes
 ```
-python create_crops.py --base_dir ./data/spacenet/ --crop_size 650 --im_suffix .png --gt_suffix .png
-python create_crops.py --base_dir ./data/deepglobe/train --crop_size 512 --im_suffix .png --gt_suffix .png
+python create_crops.py --base_dir ./data/spacenet/ --dataset SpaceNet --crop_size 650
+python create_crops.py --base_dir ./data/deepglobe/train --dataset DeepGlobe --crop_size 512
 ```
 ```
-python create_connection.py --base_dir ./data/spacenet/crops 
-python create_connection.py --base_dir ./data/deepglobe/train/crops 
+python create_connection.py --base_dir ./data/spacenet/crops
+python create_connection.py --base_dir ./data/deepglobe/train/crops
 ```
 ```
 spacenet
@@ -78,10 +79,10 @@ spacenet
 |   val_crops.txt     # created by create_crops.py
 |
 └───gt
-│   
+│
 └───images
-│   
-└───crops       
+│
+└───crops
 │   └───connect_8_d1	# created by create_connection.py
 │   └───connect_8_d3	# created by create_connection.py
 │   └───gt		# created by create_crops.py
@@ -97,7 +98,7 @@ The pretrained model of CoANet can be downloaded:
 Run the following scripts to evaluate the model.
 - SpaceNet
 ```
-python test.py --ckpt='./run/spacenet/CoANet-resnet/CoANet-spacenet.pth.tar' --out_path='./run/spacenet/CoANet-resnet' --dataset='spacenet' --base_size=1280 --crop_size=1280 
+python test.py --ckpt='./run/spacenet/CoANet-resnet/CoANet-spacenet.pth.tar' --out_path='./run/spacenet/CoANet-resnet' --dataset='spacenet' --base_size=1280 --crop_size=1280
 ```
 - DeepGlobe
 ```
@@ -127,7 +128,7 @@ usage: train.py [-h] [--backbone resnet]
                 [--gpu-ids GPU_IDS] [--seed S] [--resume RESUME]
                 [--checkname CHECKNAME] [--ft] [--eval-interval EVAL_INTERVAL]
                 [--no-val]
-    
+
 ```
 3. To train CoANet using SpaceNet dataset and ResNet as backbone:
 ```Shell

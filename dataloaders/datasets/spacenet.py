@@ -25,8 +25,8 @@ class Segmentation(Dataset):
         """
         super().__init__()
         self._base_dir = Path.db_root_dir(args.dataset)
-        self._image_dir = os.path.join(self._base_dir, 'RGB-PanSharpen_8bit')
-        self._cat_dir = os.path.join(self._base_dir, 'masks_3m')
+        self._image_dir = os.path.join(self._base_dir, 'images')
+        self._cat_dir = os.path.join(self._base_dir, 'gt')
         self._con_dir = os.path.join(self._base_dir, 'connect_8_d1')
         self._con_d1_dir = os.path.join(self._base_dir, 'connect_8_d3')
 

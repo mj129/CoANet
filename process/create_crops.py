@@ -1,9 +1,9 @@
 """
 create_crops.py: script to crops for training and validation.
-                It will save the crop images and mask in the format: 
+                It will save the crop images and mask in the format:
                 <image_name>_<x>_<y>.<suffix>
                 where x = [0, (Image_Height - crop_size) / stride]
-                      y = [0, (Image_Width - crop_size) / stride] 
+                      y = [0, (Image_Width - crop_size) / stride]
 
 It will create following directory structure:
     base_dir
@@ -36,7 +36,7 @@ def verify_image(img_file):
         return False
     return True
 
-def CreatCrops(base_dir, crop_type, size, stride, image_suffix, gt_suffix):
+def CreatCrops(base_dir, dataset, crop_type, size, stride, image_suffix, gt_suffix):
 
     crops = os.path.join(base_dir, 'crops')
     if not os.path.exists(crops):
@@ -57,12 +57,16 @@ def CreatCrops(base_dir, crop_type, size, stride, image_suffix, gt_suffix):
         return lines
 
     failure_images = []
-    for name in tqdm(full_file, ncols=100, desc="{}_crops".format(crop_type), 
+    for name in tqdm(full_file, ncols=100, desc="{}_crops".format(crop_type),
                             total=get_num_lines(full_file_path)):
-        
+
         name = name.strip("\n")
-        image_file = os.path.join(base_dir, 'images', name)
-        gt_file = os.path.join(base_dir, 'gt', name.split('n_')[1])
+        if dataset == 'SpaceNet':
+            image_file = os.path.join(base_dir, 'images', name)
+            gt_file = os.path.join(base_dir, 'gt', name.split('n_')[1])
+        elif dataset == 'DeepGlobe':
+            image_file = os.path.join(base_dir, 'images', name + '_sat.jpg')
+            gt_file = os.path.join(base_dir, 'gt', name + '_mask.png')
 
         if not verify_image(image_file):
             failure_images.append(image_file)
@@ -70,7 +74,7 @@ def CreatCrops(base_dir, crop_type, size, stride, image_suffix, gt_suffix):
 
         image = cv2.imread(image_file)
         gt = cv2.imread(gt_file,0)
-        
+
         if image is None:
             failure_images.append(image_file)
             continue
@@ -83,8 +87,11 @@ def CreatCrops(base_dir, crop_type, size, stride, image_suffix, gt_suffix):
         maxx = int((H-size)/stride)
         maxy = int((W-size)/stride)
 
-        name = name.split('.')[0]
-        name_a = name.split('n_')[1]
+        if dataset == 'SpaceNet':
+            name = name.split('.')[0]
+            name_a = name.split('n_')[1]
+        elif dataset == 'DeepGlobe':
+            name_a = name
 
         for x in range(maxx+1):
             for y in range(maxy+1):
@@ -93,7 +100,7 @@ def CreatCrops(base_dir, crop_type, size, stride, image_suffix, gt_suffix):
                 crops_file.write('{}_{}_{}.png\n'.format(name,x,y))
                 cv2.imwrite(crops+'/images/{}_{}_{}.png'.format(name,x,y),  im_)
                 cv2.imwrite(crops+'/gt/{}_{}_{}.png'.format(name_a,x,y), gt_)
-    
+
     crops_file.close()
     full_file.close()
     if len(failure_images) > 0:
@@ -104,6 +111,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--base_dir', type=str, default='../../data/SpaceNet/spacenet/result_3m',
         help='Base directory for Spacenent Dataset.')
+    parser.add_argument('--dataset', type=str, default='DeepGlobe',
+                        choices=['SpaceNet', 'DeepGlobe'], help='dataset name')
     parser.add_argument('--crop_size', type=int, default=650,
         help='Crop Size of Image')
     parser.add_argument('--crop_overlap', type=int, default=0,
@@ -116,20 +125,22 @@ def main():
     args = parser.parse_args()
 
     start = time.clock()
-    ## Create overlapping Crops for training
-    CreatCrops(args.base_dir, 
-                crop_type='train', 
-                size=args.crop_size, 
+    # Create crops for training
+    CreatCrops(args.base_dir,
+                args.dataset,
+                crop_type='train',
+                size=args.crop_size,
                 stride=args.crop_size,
-                image_suffix=args.im_suffix, 
+                image_suffix=args.im_suffix,
                 gt_suffix=args.gt_suffix)
 
-    ## Create non-overlapping Crops for validation
-    CreatCrops(args.base_dir, 
+    ## Create crops for validation
+    CreatCrops(args.base_dir,
+                args.dataset,
                 crop_type='val',
-                size=args.crop_size, 
-                stride=args.crop_size,  ## Non-overlapping
-                image_suffix=args.im_suffix, 
+                size=args.crop_size,
+                stride=args.crop_size,
+                image_suffix=args.im_suffix,
                 gt_suffix=args.gt_suffix)
 
     end = time.clock()

@@ -57,7 +57,7 @@ def main():
                         comma-separated list of integers only (default=0)')
     parser.add_argument('--dataset', type=str, default='spacenet',
                         choices=['spacenet', 'DeepGlobe'],
-                        help='dataset name (default: pascal)')
+                        help='dataset name')
     parser.add_argument('--base-size', type=int, default=1280,
                         help='base image size. spacenet:1280, DeepGlobe:1024.')
     parser.add_argument('--crop-size', type=int, default=1280,
