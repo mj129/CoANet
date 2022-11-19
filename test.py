@@ -96,8 +96,7 @@ def main():
     evaluator.reset()
     tbar = tqdm(test_loader, desc='\r')
     for i, sample in enumerate(tbar):
-        image, target, con0, con1, con2 = sample[0]['image'], sample[0]['label'], \
-                                          sample[0]['connect0'], sample[0]['connect1'], sample[0]['connect2']
+        image, target = sample[0]['image'], sample[0]['label']
         image = image.cpu().numpy()
         image1 = image[:, :, ::-1, :]
         image2 = image[:, :, :, ::-1]
@@ -105,10 +104,9 @@ def main():
         image = np.concatenate((image,image1,image2,image3), axis=0)
         image = torch.from_numpy(image).float()
 
-        connect_label = torch.cat((con0, con1, con2), 1)
         img_name = sample[1][0].split('.')[0]
         if args.cuda:
-            image, target, connect_label = image.cuda(), target.cuda(), connect_label.cuda()
+            image, target = image.cuda(), target.cuda()
         with torch.no_grad():
             output, out_connect, out_connect_d1 = model(image)
 

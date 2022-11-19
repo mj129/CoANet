@@ -330,3 +330,64 @@ class FixedResize(object):
         return {'image': img,
                 'label': mask, 'connect0': con0, 'connect1': con1, 'connect2': con2,
                 'connect_d1_0': con_d1_0, 'connect_d1_1': con_d1_1, 'connect_d1_2': con_d1_2}
+
+class FixedResize_test(object):
+    def __init__(self, size):
+        self.size = (size, size)  # size: (h, w)
+
+    def __call__(self, sample):
+        img = sample['image']
+        mask = sample['label']
+
+        assert img.size == mask.size
+
+        img = img.resize(self.size, Image.BILINEAR)
+        mask = mask.resize(self.size, Image.NEAREST)
+
+        return {'image': img,
+                'label': mask}
+
+class Normalize_test(object):
+    """Normalize a tensor image with mean and standard deviation.
+    Args:
+        mean (tuple): means for each channel.
+        std (tuple): standard deviations for each channel.
+    """
+    def __init__(self, mean=(0., 0., 0.), std=(1., 1., 1.)):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, sample):
+        img = sample['image']
+        mask = sample['label']
+        img = np.array(img).astype(np.float32)
+        mask = np.array(mask).astype(np.float32)
+
+        img /= 255.0
+        img -= self.mean
+        img /= self.std
+        mask /= 255.0
+        mask[mask >= 0.5] = 1
+        mask[mask <= 0.5] = 0
+
+        return {'image': img,
+                'label': mask}
+
+class ToTensor_test(object):
+    """Convert ndarrays in sample to Tensors."""
+
+    def __call__(self, sample):
+        # swap color axis because
+        # numpy image: H x W x C
+        # torch image: C X H X W
+        img = sample['image']
+        mask = sample['label']
+
+        img = np.array(img).astype(np.float32).transpose((2, 0, 1))
+        mask = np.array(mask).astype(np.float32)
+
+        img = torch.from_numpy(img).float()
+        mask = torch.from_numpy(mask).float()
+
+        return {'image': img,
+                'label': mask}

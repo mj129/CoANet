@@ -8,9 +8,6 @@ from torchvision import transforms
 from dataloaders import custom_transforms as tr
 
 class Segmentation(Dataset):
-    """
-    PascalVoc dataset
-    """
     NUM_CLASSES = 1
 
     def __init__(self,
@@ -140,14 +137,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
-    args.base_size = 513
-    args.crop_size = 513
-    args.batch_size = 5
+    args.base_size = 512
+    args.crop_size = 512
+    args.batch_size = 1
     args.dataset = 'DeepGlobe'
 
-    voc_train = Segmentation(args, split='train')
+    data_train = Segmentation(args, split='train')
 
-    dataloader = DataLoader(voc_train, batch_size=5, shuffle=True, num_workers=0)
+    dataloader = DataLoader(data_train, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
     for ii, sample in enumerate(dataloader):
         for jj in range(sample["image"].size()[0]):
